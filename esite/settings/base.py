@@ -23,11 +23,12 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 INSTALLED_APPS = [
     # Our own apps
     'esite.core',
-    'esite.home',
+    'esite.waveater',
 
     # Third party apps
     'corsheaders',
     'django_filters',
+
 
     # Django core apps
     'django.contrib.admin',
@@ -170,5 +171,6 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
+
 # SPDX-License-Identifier: (EUPL-1.2)
-# Copyright © 2019 Werbeagentur Christian Aichner
+# Copyright © 2020 miraculix-org Florian Kleber
