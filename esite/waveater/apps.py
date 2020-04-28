@@ -34,11 +34,13 @@ class BOX:
 
     @classmethod
     def commands(cls, cmd):
-        return{
+        cmd = cmd.split(": ")[0]
+        return {
             'start': lambda: cls.start,
             'back': lambda: cls.start,
             'workpackages': lambda: cls.workpackages,
             'right': lambda: cls.right,
+            'wp': lambda: cls.workpackage,
         }.get(cmd, lambda: cls.help)()
 
     @classmethod
@@ -46,21 +48,23 @@ class BOX:
         if not args[0:]:
             args = ('noarg',)
 
-        return ("Back"[
+        return ("Back",[
             [Button.inline('Workpackages'), Button.inline('Right')],
             [Button.url('Check this site!', 'https://lonamiwebs.github.io')],
         ],{})
 
     @classmethod
     def workpackages(cls, *args):
+        print(args)
         from .models import Log
         user_id = args[0].query.user_id
         print('Hello')
-        db = Log.objects.get(uid=user_id)
-        workpackages_object = json.loads('[{"name":"init","status":"fertig","durration":"9h","realtime":"10h35m3s","sid":"1","did":"1.1","pid":"1.1.1"},{"name":"init","status":"fertig","durration":"9h","realtime":"10h35m3s","sid":"1","did":"1.1","pid":"1.1.1"},{"name":"init","status":"fertig","durration":"9h","realtime":"10h35m3s","sid":"1","did":"1.1","pid":"1.1.1"},{"name":"init","status":"fertig","durration":"9h","realtime":"10h35m3s","sid":"1","did":"1.1","pid":"1.1.1"},{"name":"init","status":"fertig","durration":"9h","realtime":"10h35m3s","sid":"1","did":"1.1","pid":"1.1.1"}]')
+        log = Log.objects.get(uid=user_id)
+        print("USERIDDD", log.workpackages)
+        workpackages_object = json.loads(log.workpackages)
         print(workpackages_object[0]['name'])
         print([[Button.inline(workpackage['name'])] for workpackage in workpackages_object])
-        button_list = [[Button.inline(workpackage['name'])] for workpackage in workpackages_object]
+        button_list = [[Button.inline(f"wp: {workpackage['name']}")] for workpackage in workpackages_object]
         button_list.append([Button.inline('Back')])
         return (f'Afoch irgendwos {workpackages_object[0]["name"]}',
             button_list,
@@ -69,22 +73,16 @@ class BOX:
     
     @classmethod
     def workpackage(cls, *args):
-        return 
+        from .models import Log
+        user_id = args[0].query.user_id
+        print('Hello')
 
-    @classmethod
-    def right(cls, *args):
-        return ('right', 1)
+        logs = Log.objects.get(uid=user_id)
+        print()
+        wp = json.loads(logs.workpackages)[0]
+        event = args[0]
+        data = event.query.data.decode("utf-8").lower()
 
-    @classmethod
-    def help(cls, *args):
-        return ('useable commands and arguments are:\n\thelp\t--help -h\n\tadd\t--add -a\n\texit\t--exit -e', 1)
-
-
-class WaveaterConfig(AppConfig):
-    name = 'esite.waveater'
-
-    def ready(self):
-        """Start the client."""
         workpackage = {
             "name": "init",
             "status": "fertig",
@@ -95,8 +93,54 @@ class WaveaterConfig(AppConfig):
             "pid": "1.1.1",
         }
 
-        #log = Log(uid=45350407, workpackages=[workpackage,workpackage,workpackage,workpackage,workpackage ])
-        #log.save()
+        print("package")
+        print(wp, f"`{wp['name']}`")
+        wp_out = f"`{wp['name']}\nstatus: {wp['status']}\ndurration: {wp['durration']}\nrealtime: {wp['realtime']}\nsid: {wp['sid']}\ndid: {wp['did']}\npid: {wp['pid']}`"
+        print(wp_out)
+        return (wp_out, [[Button.inline('Back')]], {})
+
+    @classmethod
+    def right(cls, *args):
+        return ('right', 1)
+
+    @classmethod
+    def help(cls, *args):
+        return ("useable commands and arguments are",[
+            [Button.inline('Workpackages'), Button.inline('Right')],
+            [Button.url('Check this site!', 'https://lonamiwebs.github.io')],
+        ],{})
+        #return ('useable commands and arguments are:\n\thelp\t--help -h\n\tadd\t--add -a\n\texit\t--exit -e', [])
+
+
+class WaveaterConfig(AppConfig):
+    name = 'esite.waveater'
+
+    def ready(self):
+        #from esite.waveater.models import Log
+        """Start the client."""
+        workpackage = {
+            "name": "init",
+            "status": "fertig",
+            "durration": "9h",
+            "realtime": "10h35m3s",
+            "sid": "1",
+            "did": "1.1",
+            "pid": "1.1.1",
+        }
+        workpackage2 = {
+            "name": "init2",
+            "status": "fertig",
+            "durration": "9h",
+            "realtime": "10h35m3s",
+            "sid": "1",
+            "did": "1.1",
+            "pid": "1.1.1",
+        }
+
+        # log = Log(uid=45350407, workpackages=json.dumps([workpackage,workpackage2 ]))
+        # log.save()
+        # log = Log(uid=903222659, workpackages=json.dumps([workpackage,workpackage2 ]))
+        # log.save()
         print("waveaterbot started...")
         threading.Thread(name="waveater-main-thread", target=Waveater.main).start()
 
@@ -104,18 +148,25 @@ class Waveater():
     def main():
         loop = asyncio.new_event_loop()
         client = TelegramClient('anon', settings.TELEGRAM_API_ID, settings.TELEGRAM_API_HASH, loop=loop).start(bot_token=settings.TELEGRAM_BOT_TOKEN)
-        workpackages = {}
 
         @client.on(events.CallbackQuery)
         async def callback(event):
-            data = event.querie.data.decode("utf-8").lower()
+            print("A", event)
+            data = event.query.data.decode("utf-8").lower()
+            print("BB")
+            print()
+            cmd_out= BOX.commands(data)(event)
+            # print(workpackages)
+            # if(workpackages):
+            #     print("true1")
+            #     cmd_out= BOX.commands(data)(event,workpackages)
+            #     print("true")
+            # else:
+            #     print("false")
+            #     cmd_out= BOX.commands(data)(event)
+            #     print("false")
 
-            if(workpackages):
-                cmd_out= BOX.commands(data)(event,workpackages)
-            else:
-                cmd_out= BOX.commands(data)(event)
-
-            workpackages = cmd_out[3]           
+            #workpackages = cmd_out[3]           
             #print(event.query.user_id)
             #print(event.query.__dict__.keys())
             #print(event.query.data.decode("utf-8"))
@@ -136,7 +187,9 @@ class Waveater():
         @client.on(events.NewMessage(pattern='/main'))
         async def start(event):
             """Send a message when the command /start is issued."""
+            print("before cmd")
             cmd_out= BOX.commands('start')()
+            print("aftet cmd")
             await event.respond('Pick one from this grid', buttons= cmd_out[1])
 
             raise events.StopPropagation
