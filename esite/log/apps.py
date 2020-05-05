@@ -25,7 +25,7 @@ class BOX:
     # meths
     @classmethod
     def os(cls, os):
-        return{
+        return {
             'posix': lambda: '/opt/ts3soundboard/',
             'nt': lambda: 'C:\\SinusBot\\',
             'mac': lambda: os.sys.exit()
@@ -56,8 +56,8 @@ class BOX:
         text = f'Your TelegramID: {event.query.user_id}'
 
         return (text, [
-                [Button.inline('Back')],
-                ])
+            [Button.inline('Back')],
+        ])
 
     @classmethod
     def start(cls, **kwargs):
@@ -66,16 +66,16 @@ class BOX:
         from django.contrib.auth import get_user_model
         from .models import Workpackage
 
-        users = get_user_model().objects.filter(telegram_id=event.query.user_id)
+        users = get_user_model().objects.filter(
+            telegram_id=event.query.user_id)
         my_workpackages = []
-        if(len(users) > 0):
-            my_workpackages = Workpackage.objects.filter(
-                assoc_user=users[0], status="ongoing")
+        if (len(users) > 0):
+            my_workpackages = Workpackage.objects.filter(assoc_user=users[0],
+                                                         status="ongoing")
         print("user")
         print("USER:", users)
 
         workpackages = Workpackage.objects.filter(status="ongoing")
-
         """ Ongoing packages overview """
         """
         000-000-000 SNEKLOG RUNNING-TIME by schettn
@@ -83,7 +83,9 @@ class BOX:
         """
         print("overivew")
         overview = [
-            f'`{workpackage.pid} {workpackage.name} {workpackage.realtime} by {workpackage.assoc_user}`' for workpackage in workpackages]
+            f'`{workpackage.pid} {workpackage.name} {workpackage.realtime} by {workpackage.assoc_user}`'
+            for workpackage in workpackages
+        ]
         overview_text = '`Ongoing Workpackages:`\n\n' + '\n'.join(overview)
         print(overview_text)
         # case1: a user have n ongoing packages
@@ -91,10 +93,13 @@ class BOX:
         #   -> Show workpackages button
         #   -> Show my todo list
         #
-        if(len(my_workpackages) > 0):
+        if (len(my_workpackages) > 0):
             return (overview_text, [
-                [Button.inline('Workpackages', data=b'workpackages'),
-                 Button.inline('Todo', data=b'todo')], [Button.inline('Info')],
+                [
+                    Button.inline('Workpackages', data=b'workpackages'),
+                    Button.inline('Todo', data=b'todo')
+                ],
+                [Button.inline('Info')],
             ])
         else:
             # case2: no pacakge of the current user is ongoing.
@@ -102,12 +107,16 @@ class BOX:
             #   -> Show workpackages button
             #
             return (overview_text, [
-                [Button.inline('Workpackages', data=b'workpackages')], [Button.inline('Info')],
+                [Button.inline('Workpackages', data=b'workpackages')],
+                [Button.inline('Info')],
             ])
 
         return ("Back", [
-            [Button.inline('Workpackages', data=b'workpackages'),
-             Button.inline('Start')], [Button.inline('Info')],
+            [
+                Button.inline('Workpackages', data=b'workpackages'),
+                Button.inline('Start')
+            ],
+            [Button.inline('Info')],
         ])
 
     @classmethod
@@ -116,8 +125,10 @@ class BOX:
         print(kwargs["event"])
         user_id = kwargs["event"].query.user_id
         workpackages = Workpackage.objects.all()
-        button_list = [[Button.inline(f"{workpackage.pid} {workpackage.name}", data=(
-            f"wp:{workpackage.pid}").encode())] for workpackage in workpackages]
+        button_list = [[
+            Button.inline(f"{workpackage.pid} {workpackage.name}",
+                          data=(f"wp:{workpackage.pid}").encode())
+        ] for workpackage in workpackages]
         button_list.append([Button.inline('Back')])
 
         new_count = Workpackage.objects.filter(status='new').count()
@@ -128,9 +139,7 @@ class BOX:
 
         overview_text = f"`New: {new_count}\nOngoing: {ongoing_count}\nWaiting: {waiting_count}\nWaiting for Review: {review_count}\nFinished: {fin_count}`"
 
-        return (overview_text,
-                button_list
-                )
+        return (overview_text, button_list)
 
     @classmethod
     def workpackage(cls, **kwargs):
@@ -148,19 +157,45 @@ class BOX:
         workpackage = Workpackage.objects.get(pid=pid)
         wp_out = f"`{workpackage.name}\nstatus: {workpackage.status}\ndurration: {workpackage.durration}\nrealtime: {workpackage.realtime}\nsid: {workpackage.sid}\ndid: {workpackage.did}\npid: {workpackage.pid}`"
 
-        users = get_user_model().objects.filter(telegram_id=event.query.user_id)
-        if(len(users) > 0):
-            workpackage_check = Workpackage.objects.filter(
-                pid=pid, assoc_user=users[0])
+        users = get_user_model().objects.filter(
+            telegram_id=event.query.user_id)
+        if (len(users) > 0):
+            workpackage_check = Workpackage.objects.filter(pid=pid,
+                                                           assoc_user=users[0])
             print(workpackage_check)
-            if(len(workpackage_check) > 0):
-                if(workpackage.status == 'new' or workpackage.status == 'waiting'):
-                    return (wp_out, [[Button.inline('Start', data=(f"wp_start:{workpackage.pid}").encode()), Button.inline('Back', data=(f"back:wp:{workpackage.pid}").encode())]])
-                if(workpackage.status == 'review' or workpackage.status == 'review'):
-                    return (wp_out, [[Button.inline('Back', data=(f"back:wp:{workpackage.pid}").encode())]])
-                return (wp_out, [[Button.inline('Commit', data=(f"wp_commit:{workpackage.pid}").encode())], [Button.inline('Back', data=(f"back:wp:{workpackage.pid}").encode())]])
+            if (len(workpackage_check) > 0):
+                if (workpackage.status == 'new'
+                        or workpackage.status == 'waiting'):
+                    return (wp_out, [[
+                        Button.inline(
+                            'Start',
+                            data=(f"wp_start:{workpackage.pid}").encode()),
+                        Button.inline(
+                            'Back',
+                            data=(f"back:wp:{workpackage.pid}").encode())
+                    ]])
+                if (workpackage.status == 'review'
+                        or workpackage.status == 'review'):
+                    return (wp_out, [[
+                        Button.inline(
+                            'Back',
+                            data=(f"back:wp:{workpackage.pid}").encode())
+                    ]])
+                return (wp_out,
+                        [[
+                            Button.inline(
+                                'Commit',
+                                data=(f"wp_commit:{workpackage.pid}").encode())
+                        ],
+                         [
+                             Button.inline(
+                                 'Back',
+                                 data=(f"back:wp:{workpackage.pid}").encode())
+                         ]])
             print("false")
-        return (wp_out, [[Button.inline('Back', data=(f"back:wp:{workpackage.pid}").encode())]])
+        return (wp_out, [[
+            Button.inline('Back', data=(f"back:wp:{workpackage.pid}").encode())
+        ]])
 
         # state = ('Nothing', 'wp_nothing')
         # if(user):
@@ -182,18 +217,20 @@ class BOX:
         from django.contrib.auth import get_user_model
         from .models import Workpackage
 
-        users = get_user_model().objects.filter(telegram_id=event.query.user_id)
+        users = get_user_model().objects.filter(
+            telegram_id=event.query.user_id)
         button_list = []
-        if(len(users) > 0):
+        if (len(users) > 0):
             workpackages = Workpackage.objects.filter(assoc_user=users[0])
-            button_list = [[Button.inline(f"[{workpackage.status}] {workpackage.pid} {workpackage.name} ", data=(
-                f"wp:{workpackage.pid}").encode())] for workpackage in workpackages]
+            button_list = [[
+                Button.inline(
+                    f"[{workpackage.status}] {workpackage.pid} {workpackage.name} ",
+                    data=(f"wp:{workpackage.pid}").encode())
+            ] for workpackage in workpackages]
 
         button_list.append([Button.inline('Back')])
 
-        return (f'`Your workpackages:`',
-                button_list
-                )
+        return (f'`Your workpackages:`', button_list)
 
     @classmethod
     def workpackage_start(cls, **kwargs):
@@ -241,17 +278,26 @@ class BOX:
         pid = data.split(":")[1]
 
         return ("useable commands and arguments are", [
-            [Button.inline('Stop', data=(f"wp_commit_handler:{pid}:waiting").encode()),
-             Button.inline('Note', data=(f"wp_note:{pid}").encode())],
-            [Button.inline('Request Review', data=(
-                f"wp_commit_handler:{pid}:review").encode())],
+            [
+                Button.inline(
+                    'Stop',
+                    data=(f"wp_commit_handler:{pid}:waiting").encode()),
+                Button.inline('Note', data=(f"wp_note:{pid}").encode())
+            ],
+            [
+                Button.inline(
+                    'Request Review',
+                    data=(f"wp_commit_handler:{pid}:review").encode())
+            ],
         ])
 
     @classmethod
     def help(cls, **kwargs):
         return ("useable commands and arguments are", [
-            [Button.inline('Workpackages', data=b'workpackages'),
-             Button.inline('Start')],
+            [
+                Button.inline('Workpackages', data=b'workpackages'),
+                Button.inline('Start')
+            ],
         ])
         # return ('useable commands and arguments are:\n\thelp\t--help -h\n\tadd\t--add -a\n\texit\t--exit -e', [])
 
@@ -267,8 +313,11 @@ class LogConfig(AppConfig):
 class Log():
     def main():
         loop = asyncio.new_event_loop()
-        client = TelegramClient('anon', settings.TELEGRAM_API_ID, settings.TELEGRAM_API_HASH, loop=loop).start(
-            bot_token=settings.TELEGRAM_BOT_TOKEN)
+        client = TelegramClient(
+            'anon',
+            settings.TELEGRAM_API_ID,
+            settings.TELEGRAM_API_HASH,
+            loop=loop).start(bot_token=settings.TELEGRAM_BOT_TOKEN)
 
         @client.on(events.CallbackQuery)
         async def callback(event):
@@ -291,7 +340,10 @@ class Log():
             # print(event.query.data.decode("utf-8"))
             # print(BOX.commands(event.query.data.decode("utf-8").lower())()[0])
             # print(cmd_out)
-            await client.edit_message(event.chat_id, event.query.msg_id, cmd_out[0], buttons=cmd_out[1])
+            await client.edit_message(event.chat_id,
+                                      event.query.msg_id,
+                                      cmd_out[0],
+                                      buttons=cmd_out[1])
 
         def funcname(parameter_list):
             pass
@@ -300,7 +352,9 @@ class Log():
         @client.on(events.NewMessage(pattern='/help'))
         async def start(event):
             """Send a message when the command /start is issued."""
-            await event.respond("Hi, I'm an audio slave! :3\nI would love to convert every wav you got into a telegram voice message. (>.<)")
+            await event.respond(
+                "Hi, I'm an audio slave! :3\nI would love to convert every wav you got into a telegram voice message. (>.<)"
+            )
             raise events.StopPropagation
 
         @client.on(events.NewMessage(pattern='/init'))
@@ -339,7 +393,13 @@ class Log():
                     # print(event.message.file.performer)
                     # print(event.message.file.name)
                     # print(event.message.file.duration)
-                    result = await client.send_file(event.chat_id, audio_out, voice_note=True, caption=f"{event.message.message}\n\n`track: '{event.message.file.name.split('.')[0]}_{event.message.media.document.date.strftime('%m-%d_%H-%M')}',\nchannel: '{audio_seg.channels}'',\nformat: 'ogg',\ncodec: 'opus',\nbitrate: '128k'`", reply_to=event.message)
+                    result = await client.send_file(
+                        event.chat_id,
+                        audio_out,
+                        voice_note=True,
+                        caption=
+                        f"{event.message.message}\n\n`track: '{event.message.file.name.split('.')[0]}_{event.message.media.document.date.strftime('%m-%d_%H-%M')}',\nchannel: '{audio_seg.channels}'',\nformat: 'ogg',\ncodec: 'opus',\nbitrate: '128k'`",
+                        reply_to=event.message)
                     # print(result.file.duration)
                     # print(result.file.performer)
 
@@ -347,10 +407,13 @@ class Log():
 
                 except Exception as e:
                     print(e)
-                    await msg.edit(f"OwO Shit happens! Something has gone wrong.\n\n**Error:** {e}")
+                    await msg.edit(
+                        f"OwO Shit happens! Something has gone wrong.\n\n**Error:** {e}"
+                    )
 
         # print(f"{threading.enumerate()}")
         client.run_until_disconnected()
+
 
 # SPDX-License-Identifier: (EUPL-1.2)
 # Copyright © 2020 miraculix-org Florian Kleber
