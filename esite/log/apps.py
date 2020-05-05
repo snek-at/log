@@ -18,6 +18,8 @@ import json
 import re
 import string
 
+from datetime import datetime
+
 # BOX object
 
 
@@ -232,6 +234,7 @@ class BOX:
 
         workpackage = Workpackage.objects.get(pid=pid)
         workpackage.status = "ongoing"
+        workpackage.starttime = datetime.now()
         workpackage.save()
 
         wp_out = f"`{workpackage.name}\nstatus: {workpackage.status}\ndurration: {workpackage.durration}\nrealtime: {workpackage.realtime}\nsid: {workpackage.sid}\ndid: {workpackage.did}\npid: {workpackage.pid}`"

@@ -28,7 +28,7 @@ class Workpackage(models.Model):
     durration = models.DurationField(null=True, blank=False)
     # OUTDATED
     realtime = models.DurationField(null=True, blank=False, default='00:00:00')
-    starttime = models.DateTimeField(null=True, blank=False)
+    starttime = models.DateTimeField(null=True, blank=True)
     sid = models.CharField(max_length=3,
                            validators=[
                                RegexValidator(
