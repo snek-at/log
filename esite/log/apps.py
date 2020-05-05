@@ -61,20 +61,8 @@ class BOX:
 
     @classmethod
     def start(cls, **kwargs):
-        event = kwargs["event"]
-
-        from django.contrib.auth import get_user_model
+        print(kwargs)
         from .models import Workpackage
-
-        users = get_user_model().objects.filter(
-            telegram_id=event.query.user_id)
-        my_workpackages = []
-        if (len(users) > 0):
-            my_workpackages = Workpackage.objects.filter(assoc_user=users[0],
-                                                         status="ongoing")
-        print("user")
-        print("USER:", users)
-
         workpackages = Workpackage.objects.filter(status="ongoing")
         """ Ongoing packages overview """
         """
@@ -88,34 +76,35 @@ class BOX:
         ]
         overview_text = '`Ongoing Workpackages:`\n\n' + '\n'.join(overview)
         print(overview_text)
-        # case1: a user have n ongoing packages
-        #   -> print a overview of all ongoing packages
-        #   -> Show workpackages button
-        #   -> Show my todo list
-        #
-        if (len(my_workpackages) > 0):
-            return (overview_text, [
-                [
-                    Button.inline('Workpackages', data=b'workpackages'),
-                    Button.inline('Todo', data=b'todo')
-                ],
-                [Button.inline('Info')],
-            ])
-        else:
-            # case2: no pacakge of the current user is ongoing.
-            #   -> Print a overview of all ongoing packages
-            #   -> Show workpackages button
-            #
-            return (overview_text, [
-                [Button.inline('Workpackages', data=b'workpackages')],
-                [Button.inline('Info')],
-            ])
 
-        return ("Back", [
-            [
-                Button.inline('Workpackages', data=b'workpackages'),
-                Button.inline('Start')
-            ],
+        if "event" in kwargs:
+            event = kwargs["event"]
+            from django.contrib.auth import get_user_model
+
+            users = get_user_model().objects.filter(
+                telegram_id=event.query.user_id)
+            my_workpackages = []
+            if (len(users) > 0):
+                my_workpackages = Workpackage.objects.filter(
+                    assoc_user=users[0], status="ongoing")
+            print("user")
+            print("USER:", users)
+            # case1: a user have n ongoing packages
+            #   -> print a overview of all ongoing packages
+            #   -> Show workpackages button
+            #   -> Show my todo list
+            #
+            if (len(my_workpackages) > 0):
+                return (overview_text, [
+                    [
+                        Button.inline('Workpackages', data=b'workpackages'),
+                        Button.inline('Todo', data=b'todo')
+                    ],
+                    [Button.inline('Info')],
+                ])
+
+        return (overview_text, [
+            [Button.inline('Workpackages', data=b'workpackages')],
             [Button.inline('Info')],
         ])
 
@@ -175,7 +164,7 @@ class BOX:
                             data=(f"back:wp:{workpackage.pid}").encode())
                     ]])
                 if (workpackage.status == 'review'
-                        or workpackage.status == 'review'):
+                        or workpackage.status == 'fin'):
                     return (wp_out, [[
                         Button.inline(
                             'Back',
@@ -277,19 +266,25 @@ class BOX:
         data = event.query.data.decode("utf-8").lower()
         pid = data.split(":")[1]
 
-        return ("useable commands and arguments are", [
+        from .models import Workpackage
+
+        workpackage = Workpackage.objects.get(pid=pid)
+        return (
+            f'`{workpackage.name}`',
             [
-                Button.inline(
-                    'Stop',
-                    data=(f"wp_commit_handler:{pid}:waiting").encode()),
-                Button.inline('Note', data=(f"wp_note:{pid}").encode())
-            ],
-            [
-                Button.inline(
-                    'Request Review',
-                    data=(f"wp_commit_handler:{pid}:review").encode())
-            ],
-        ])
+                [
+                    Button.inline(
+                        'Stop',
+                        data=(f"wp_commit_handler:{pid}:waiting").encode()),
+                    #Button.inline('Note', data=(f"wp_note:{pid}").encode())
+                ],
+                [
+                    Button.inline(
+                        'Request Review',
+                        data=(f"wp_commit_handler:{pid}:review").encode())
+                ],
+                [Button.inline('Back')]
+            ])
 
     @classmethod
     def help(cls, **kwargs):
@@ -361,7 +356,8 @@ class Log():
         async def start(event):
             """Send a message when the command /start is issued."""
             cmd_out = BOX.commands('start')()
-            await event.respond('Pick one from this grid', buttons=cmd_out[1])
+            print(cmd_out)
+            await event.respond(cmd_out[0], buttons=cmd_out[1])
 
             raise events.StopPropagation
 
