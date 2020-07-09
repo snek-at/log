@@ -16,14 +16,9 @@ from .actions import add_apps
 add_apps()
 # mixins
 from .types import (  # noqa: E402
-    AuthQueryMixin, LoginMutation, LogoutMutation,
-    DocumentQueryMixin,
-    ImageQueryMixin,
-    InfoQueryMixin,
-    MenusQueryMixin,
-    PagesQueryMixin,
-    SettingsQueryMixin,
-    SnippetsQueryMixin,
+    AuthQueryMixin, LoginMutation, LogoutMutation, DocumentQueryMixin,
+    ImageQueryMixin, InfoQueryMixin, MenusQueryMixin, PagesQueryMixin,
+    SettingsQueryMixin, SnippetsQueryMixin,
 )
 
 import graphql_jwt
@@ -31,8 +26,10 @@ import graphql_jwt
 #import esite.charm.schema
 import esite.registration.schema
 import esite.event.schema
+import esite.kanban.schema
 from esite.caching.schema import CacheUser
 from esite.jwtauth.schema import ObtainJSONWebToken
+from esite.kanban.schema import CacheKanban
 
 # Register all your schemes for graphql here.
 
@@ -40,31 +37,32 @@ from esite.jwtauth.schema import ObtainJSONWebToken
 GRAPHQL_API_FORMAT = (0, 2, 0)
 
 # mixins
-AuthQueryMixin_ = AuthQueryMixin()          # type: Any
+AuthQueryMixin_ = AuthQueryMixin()  # type: Any
 DocumentQueryMixin_ = DocumentQueryMixin()  # type: Any
-ImageQueryMixin_ = ImageQueryMixin()        # type: Any
-InfoQueryMixin_ = InfoQueryMixin()          # type: Any
-MenusQueryMixin_ = MenusQueryMixin()        # type: Any
-PagesQueryMixin_ = PagesQueryMixin()        # type: Any
+ImageQueryMixin_ = ImageQueryMixin()  # type: Any
+InfoQueryMixin_ = InfoQueryMixin()  # type: Any
+MenusQueryMixin_ = MenusQueryMixin()  # type: Any
+PagesQueryMixin_ = PagesQueryMixin()  # type: Any
 SettingsQueryMixin_ = SettingsQueryMixin()  # type: Any
 SnippetsQueryMixin_ = SnippetsQueryMixin()  # type: Any
 
 
-class Query(#esite.charm.schema.Query,
-            esite.registration.schema.Query,
-            esite.event.schema.Query,
-            #esite.charm.schema_relay.RelayQuery,
-            graphene.ObjectType,
-            #AuthQueryMixin_,
-            #DocumentQueryMixin_,
-            ImageQueryMixin_,
-            InfoQueryMixin_,
-            #MenusQueryMixin_,
-            PagesQueryMixin_,
-            #SettingsQueryMixin_,
-            #SnippetsQueryMixin_,
-            RelayMixin,
-            ):
+class Query(  #esite.charm.schema.Query,
+        esite.registration.schema.Query,
+        esite.event.schema.Query,
+        esite.kanban.schema.Query,
+        #esite.charm.schema_relay.RelayQuery,
+        graphene.ObjectType,
+        #AuthQueryMixin_,
+        #DocumentQueryMixin_,
+        ImageQueryMixin_,
+        InfoQueryMixin_,
+        #MenusQueryMixin_,
+        PagesQueryMixin_,
+        #SettingsQueryMixin_,
+        #SnippetsQueryMixin_,
+        RelayMixin,
+):
     # API Version
     format = graphene.Field(String)
 
@@ -81,19 +79,15 @@ def mutation_parameters() -> dict:
         'refresh_token': graphql_jwt.Refresh.Field(),
         'revoke_token': graphql_jwt.Revoke.Field(),
         'cache_user': CacheUser.Field(),
+        'cache_kanban': CacheKanban.Field(),
     }
     dict_params.update((camel_case_to_spaces(n).replace(' ', '_'), mut.Field())
                        for n, mut in registry.forms.items())
     return dict_params
 
 
-Mutations = type("Mutation",
-                 (graphene.ObjectType,),
-                 mutation_parameters()
-                 )
+Mutations = type("Mutation", (graphene.ObjectType, ), mutation_parameters())
 
-schema = graphene.Schema(
-    query=Query,
-    mutation=Mutations,
-    types=list(registry.models.values())
-)
+schema = graphene.Schema(query=Query,
+                         mutation=Mutations,
+                         types=list(registry.models.values()))
