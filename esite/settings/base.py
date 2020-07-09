@@ -16,12 +16,10 @@ from datetime import timedelta
 
 env = os.environ.copy()
 
-
 #> Root paths
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
-
 
 #> Application definition
 # A list of strings designating all applications that are enabled in this
@@ -64,9 +62,9 @@ INSTALLED_APPS = [
     'esite.utils',
     'esite.survey',
     'esite.tests',
-
     'esite.colorfield',
     'esite.log',
+    'esite.kanban',
 
     # Wagtail core apps
     #'wagtail.api.v2',
@@ -109,11 +107,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
-
     'pattern_library',
     'esite.project_styleguide.apps.ProjectStyleguideConfig',
 ]
-
 
 #> Middleware classes
 # In MIDDLEWARE, each middleware component is represented by a string: the full
@@ -132,7 +128,6 @@ MIDDLEWARE = [
 
     # Django core middleware
     'django.middleware.security.SecurityMiddleware',
-
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -144,7 +139,6 @@ MIDDLEWARE = [
     'wagtail.core.middleware.SiteMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
-
 
 #> Template definition
 # A list containing the settings for all template engines to be used with
@@ -171,25 +165,21 @@ TEMPLATES = [
     },
 ]
 
-
 #> CORS origin
 # If True, the whitelist will not be used and all origins will be accepted.
 # See https://pypi.org/project/django-cors-headers/
 CORS_ORIGIN_ALLOW_ALL = True
-
 
 #> URL configuration
 # A string representing the full Python import path to your root URL configuration.
 # See https://docs.djangoproject.com/en/stable/ref/settings/#root-urlconf
 ROOT_URLCONF = 'esite.urls'
 
-
 #> WSGI application path
 # The full Python path of the WSGI application object that Django’s built-in
 # servers (e.g. runserver) will use.
 # See https://docs.djangoproject.com/en/stable/ref/settings/#wsgi-application
 WSGI_APPLICATION = 'esite.wsgi.application'
-
 
 # Database
 # This setting will use DATABASE_URL environment variable.
@@ -201,7 +191,6 @@ DATABASES = {
     }
 }
 
-
 # Search
 # https://docs.wagtail.io/en/latest/topics/search/backends.html
 WAGTAILSEARCH_BACKENDS = {
@@ -210,7 +199,6 @@ WAGTAILSEARCH_BACKENDS = {
         'INDEX': 'esite',
     },
 }
-
 
 # f isetup hope I get to comment this
 GRAPHQL_API = {
@@ -221,14 +209,10 @@ GRAPHQL_API = {
         'survey',
         'event',
     ],
-    'PREFIX': {
-    },
-    'URL_PREFIX': {
-
-    },
+    'PREFIX': {},
+    'URL_PREFIX': {},
     'RELAY': False,
 }
-
 
 #> Grapple Config:
 GRAPHENE = {
@@ -257,22 +241,25 @@ GRAPPLE_APPS = {
     #"standardpages": "",
 }
 
-
 #> Password validation
 # The list of validators that are used to check the strength of passwords, see
 # https://docs.djangoproject.com/en/stable/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
@@ -284,7 +271,6 @@ AUTHENTICATION_BACKENDS = [
     'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/stable/topics/i18n/
@@ -298,7 +284,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 #> Staticfile directory
 # This is where Django will look for static files outside the directories of
 # applications which are used by default.
@@ -307,19 +292,16 @@ STATICFILES_DIRS = [
     os.path.join(PROJECT_DIR, 'static'),
 ]
 
-
 # This is where Django will put files collected from application directories
 # and custom direcotires set in "STATICFILES_DIRS" when
 # using "django-admin collectstatic" command.
 # https://docs.djangoproject.com/en/stable/ref/settings/#static-root
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-
 # This is the URL that will be used when serving static files, e.g.
 # https://llamasavers.com/static/
 # https://docs.djangoproject.com/en/stable/ref/settings/#static-url
 STATIC_URL = '/static/'
-
 
 # Where in the filesystem the media (user uploaded) content is stored.
 # MEDIA_ROOT is not used when S3 backend is set up.
@@ -327,16 +309,13 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/stable/ref/settings/#media-root
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
 # The URL path that media files will be accessible at. This setting won't be
 # used if S3 backend is set up.
 # Probably only relevant to the local development.
 # https://docs.djangoproject.com/en/stable/ref/settings/#media-url
 MEDIA_URL = '/media/'
 
-
 #> Wagtail settings
-
 
 # This name is displayed in the Wagtail admin.
 WAGTAIL_SITE_NAME = "esite"
@@ -354,26 +333,27 @@ WAGTAILADMIN_RICH_TEXT_EDITORS = {
     'default': {
         'WIDGET': 'wagtail.admin.rich_text.DraftailRichTextArea',
         'OPTIONS': {
-            'features': ['bold', 'italic', 'underline', 'strikethrough', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'ol', 'ul', 'hr', 'embed', 'link', 'superscript', 'subscript', 'document-link', 'image', 'code']
+            'features': [
+                'bold', 'italic', 'underline', 'strikethrough', 'h1', 'h2',
+                'h3', 'h4', 'h5', 'h6', 'blockquote', 'ol', 'ul', 'hr',
+                'embed', 'link', 'superscript', 'subscript', 'document-link',
+                'image', 'code'
+            ]
         }
     },
 }
-
 
 # Custom document model
 # https://docs.wagtail.io/en/stable/advanced_topics/documents/custom_document_model.html
 #WAGTAILDOCS_DOCUMENT_MODEL = 'documents.CustomDocument'
 PASSWORD_REQUIRED_TEMPLATE = 'patterns/pages/wagtail/password_required.html'
 
-
 # Default size of the pagination used on the front-end.
 DEFAULT_PER_PAGE = 10
-
 
 # Styleguide
 PATTERN_LIBRARY_ENABLED = 'true'
 PATTERN_LIBRARY_TEMPLATE_DIR = 'templates'
-
 
 # Recaptcha
 # These settings are required for the captcha challange to work.
@@ -383,10 +363,8 @@ if 'RECAPTCHA_PUBLIC_KEY' in env and 'RECAPTCHA_PRIVATE_KEY' in env:
     RECAPTCHA_PUBLIC_KEY = env['RECAPTCHA_PUBLIC_KEY']
     RECAPTCHA_PRIVATE_KEY = env['RECAPTCHA_PRIVATE_KEY']
 
-
 # Wagtail forms not used so silence captcha warning
 SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
-
 
 # Favicon settings
 # After you add favicon.ico file, please add its path relative to the static
