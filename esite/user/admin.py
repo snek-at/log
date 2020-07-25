@@ -4,8 +4,9 @@ from wagtail.contrib.modeladmin.options import ModelAdmin, ModelAdminGroup, mode
 
 from .models import User
 
-from esite.customer.admin import CustomerAdmin
-from esite.registration.admin import RegistrationAdmin
+#from esite.customer.admin import CustomerAdmin
+#from esite.registration.admin import RegistrationAdmin
+
 
 class UserAdmin(ModelAdmin):
     model = User
@@ -14,12 +15,13 @@ class UserAdmin(ModelAdmin):
     menu_order = 290
     add_to_settings_menu = False
     exclude_from_explorer = False
-   
+
     # Listed in the user overview
     list_display = ('date_joined', 'username', 'email')
     search_fields = ('date_joined', 'username', 'email')
 
-#modeladmin_register(UserAdmin)
+# modeladmin_register(UserAdmin)
+
 
 class CustomerAdminB(ModelAdminGroup):
     menu_label = "User Management"
@@ -29,8 +31,9 @@ class CustomerAdminB(ModelAdminGroup):
     exclude_from_explorer = False
     items = (
         UserAdmin,
-        CustomerAdmin,
-        RegistrationAdmin
+        # CustomerAdmin,
+        # RegistrationAdmin
     )
 
-modeladmin_register(CustomerAdminB)
+
+# modeladmin_register(CustomerAdminB)

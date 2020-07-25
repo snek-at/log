@@ -4,9 +4,6 @@ from wagtail.contrib.modeladmin.options import ModelAdmin, ModelAdminGroup, mode
 
 from .models import Workpackage
 
-from esite.customer.admin import CustomerAdmin
-from esite.registration.admin import RegistrationAdmin
-
 class WorkpackageAdmin(ModelAdmin):
     model = Workpackage
     menu_label = "Workpackage"

@@ -16,17 +16,28 @@ from modelcluster.fields import ParentalKey
 from esite.colorfield.fields import ColorField, ColorAlphaField
 from esite.colorfield.blocks import ColorBlock, ColorAlphaBlock, GradientColorBlock
 
-#from grapple.models import (
-#    GraphQLField,
-#    GraphQLString,
-#    GraphQLStreamfield,
-#)
+from esite.api.helpers import register_streamfield_block
+
+from esite.api.models import (
+    GraphQLForeignKey,
+    GraphQLField,
+    GraphQLStreamfield,
+    GraphQLImage,
+    GraphQLString,
+    GraphQLCollection,
+    GraphQLEmbed,
+    GraphQLSnippet,
+    GraphQLBoolean,
+    GraphQLSnippet,
+)
 
 # Create your homepage related models here.
 
 @register_snippet
-class Button(models.Model):
+class HomeButton(models.Model):
     button_title = models.CharField(null=True, blank=False, max_length=255)
+    #button_id = models.CharField(null=True, blank=True, max_length=255)
+    #button_class = models.CharField(null=True, blank=True, max_length=255)
     button_embed = models.CharField(null=True, blank=True, max_length=255)
     button_link = models.URLField(null=True, blank=True)
     button_page = models.ForeignKey(
@@ -48,205 +59,293 @@ class Button(models.Model):
         return self.button_title
 
 
-#> Header
-class _H_HeroBlock(blocks.StructBlock):
-    slide_image = ImageChooserBlock(null=True, blank=False, help_text="Big, high resolution slider image")
-    slide_button = SnippetChooserBlock(Button, null=True, blank=True, required=False, help_text="The button displayed at the frontpage slider")
+#> Headers
+@register_streamfield_block
+class _H_HomeBannerBlock(blocks.StructBlock):
+    head = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="The bold header text at the frontpage slider")
 
-#> Why Section
-class Why_ColumnBlock(blocks.StructBlock):
-    Column_image = ImageChooserBlock(null=True, blank=False, help_text="Icon representating the below content")
-    Column_head = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="The bold header text at the frontpage slider")
-    Column_subhead = blocks.RichTextBlock(null=True, blank=False, help_text="The content of the frontpage slider element", classname="full")
-    Column_paragraph = blocks.RichTextBlock(null=True, blank=False, help_text="Formatted text", classname="full")
+    graphql_fields = [GraphQLString("head"),]
 
-class _S_WhyBlock(blocks.StructBlock):
-    why_head = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="Bold header text")
-    why_displayhead = blocks.BooleanBlock(null=True, blank=True, default=True, required=False, help_text="Whether or not to display the header")
-    why_Columns = blocks.StreamBlock([
-        ('why_Column', Why_ColumnBlock(null=True, blank=False, icon='cogs'))
-    ], null=True, blank=False, max_num=8)
 
-#> About Shop
-class Shop_PricingcardBlock(blocks.StructBlock):
-    shopcard_background = ColorBlock(null=True, blank=False, help_text="Select background color that contrasts text")
-    shopcard_title = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="Title of pricing card")
-    shopcard_description = blocks.RichTextBlock(null=True, blank=False, help_text="Description of offer", classname="full")
-    shopcard_price = blocks.DecimalBlock(null=True, blank=False, decimal_places=2, help="Price of the offer")
-    shopcard_sucessmsg = blocks.RichTextBlock(null=True, blank=False, help_text="Success message", classname="full")
-    shopcard_button = SnippetChooserBlock(Button, null=True, blank=True, required=False, help_text="Button displayed at the pricing-section")
+@register_streamfield_block
+class _H_HomeFullBlock(blocks.StructBlock):
+    head = blocks.CharBlock(blank=True, classname="full title", icon='title')
 
-class _S_ShopBlock(blocks.StructBlock):
-    #shop_background = ColorBlock(null=True, blank=False, help_text="Select background color that contrasts text")
-    shop_head = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="Bold header text")
-    shop_displayhead = blocks.BooleanBlock(null=True, blank=True, default=True, required=False, help_text="Whether or not to display the header")
+    graphql_fields = [GraphQLString("head"),]
 
-#> About Section
-class About_CardBlock(blocks.StructBlock):
-    card_image = ImageChooserBlock(null=True, blank=False, help_text="Office-fitting image")
-    card_head = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="The bold header text at the frontpage slider")
-    card_paragraph = blocks.RichTextBlock(null=True, blank=False, help_text="Formatted text", classname="full")
 
-class _S_AboutBlock(blocks.StructBlock):
-    about_head = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="Bold header text")
-    about_displayhead = blocks.BooleanBlock(null=True, blank=True, default=True, required=False, help_text="Whether or not to display the header")
-    about_cards = blocks.StreamBlock([
-        ('aboutcard', About_CardBlock(null=True, blank=False, icon='cogs'))
-    ], null=True, blank=False, max_num=6)
+# Sections
+@register_streamfield_block
+class HomeAboutPagesBlock(blocks.StructBlock):
+    blink = blocks.CharBlock(blank=True, classname="full")
+    use_image = blocks.BooleanBlock(default=False, help_text="Use picture instead of blink", required=False)
+    image = ImageChooserBlock(required=False, classname="full")
+    boxes = blocks.StreamBlock([
+        ('title', blocks.CharBlock(null=True, blank=True, classname="full title", icon='title')),
+        ('content', blocks.RichTextBlock(null=True, blank=True, classname="full"))
+    ], null=True, blank=False)
 
-#> Instagram Section
-class _S_InstagramBlock(blocks.StructBlock):
-    instagram_id = blocks.CharBlock(null=True, blank=False, classname="full", help_text="Instagram-Account id")
-    instagram_pc = blocks.CharBlock(null=True, blank=False, classname="full", help_text="Instagram-Post count")
+    graphql_fields = [GraphQLStreamfield("boxes"), GraphQLString("blink"), GraphQLBoolean("use_image"), GraphQLImage("image")]
 
-#> Steps Section
-class Steps_StepBlock(blocks.StructBlock):
-    step_image = ImageChooserBlock(null=True, blank=False, help_text="Image fitting this step")
-    step_head = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="Bold header text")
-    step_subhead = blocks.RichTextBlock(null=True, blank=False, help_text="Short introduction to the following paragraph", classname="full")
-    step_paragraph = blocks.RichTextBlock(null=True, blank=False, help_text="Step paragraph", classname="full")
 
-class _S_StepsBlock(blocks.StructBlock):
-    steps_head = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="Bold header text")
-    steps_displayhead = blocks.BooleanBlock(null=True, blank=True, default=True, required=False, help_text="Whether or not to display the header")
-    steps_steps = blocks.StreamBlock([
-        ('step', Steps_StepBlock(null=True, blank=False))
-    ], null=True, blank=False, max_num=4)
+@register_streamfield_block
+class _S_HomeAboutBlock(blocks.StructBlock):
+    pages = blocks.StreamBlock([
+        ('page', HomeAboutPagesBlock(null=True, blank=False, icon='cogs'))
+    ], null=True, blank=False)
 
-#> Trusted Section
-class Trusted_PartnerBlock(blocks.StructBlock):
-    partner_logo = ImageChooserBlock(null=True, blank=False, help_text="Image fitting this step")
-    partner_link = blocks.URLBlock(null=True, blank=True, help_text="Important! Format https://www.domain.tld/xyz")
+    graphql_fields = [GraphQLStreamfield("pages"), ]
 
-class _S_TrustedBlock(blocks.StructBlock):
-    trusted_partner = blocks.StreamBlock([
-        ('partner', Trusted_PartnerBlock(null=True, blank=False))
-    ], null=True, blank=False, max_num=4)
 
-#> Instagram Section
-class _S_WolfBlock(blocks.StructBlock):
-    wolf_head = blocks.CharBlock(null=True, blank=False, classname="full", help_text="Bold header text")
-    wolf_subhead = blocks.RichTextBlock(null=True, blank=False, help_text="The content of the black wolf coffee intro", classname="full")
+@register_streamfield_block
+class _S_HomeMotdBlock(blocks.StructBlock):
+    modt = blocks.CharBlock(max_length=16, default="Sky's The Limit", classname="full")
 
-#> Trusted Section
-class FAQ_QuestionBlock(blocks.StructBlock):
-    question_icon = blocks.CharBlock(null=True, blank=True, help_text="Font Awesome icon name (e.g. facebook-f) from https://fontawesome.com/icons?d=gallery&s=solid&m=free")
-    question_head = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="Bold header text")
-    question_paragraph = blocks.RichTextBlock(null=True, blank=False, help_text="Formatted text", classname="full")
-    question_link = blocks.URLBlock(null=True, blank=True, help_text="Important! Format https://www.domain.tld/xyz")
+    graphql_fields = [GraphQLString("modt"), ]
 
-class _S_FAQBlock(blocks.StructBlock):
-    header = blocks.CharBlock(null=True, blank=False, classname="full title", help_text="Bold header text")
-    questions = blocks.StreamBlock([
-        ('question', FAQ_QuestionBlock(null=True, blank=False))
-    ], null=True, blank=False, max_num=4)
+
+@register_streamfield_block
+class HomeSharinganTeamMemberBlock(blocks.StructBlock):
+    pic = ImageChooserBlock(blank=True, classname="full")
+    name = blocks.CharBlock(blank=True, max_length=16, default="", classname="full")
+    description = blocks.CharBlock(max_length=128, default="", classname="full")
+
+    graphql_fields = [GraphQLImage("pic"), GraphQLString("name"), GraphQLString("description"), ]
+
+
+@register_streamfield_block
+class _S_HomeSharinganBlock(blocks.StructBlock):
+    show_projects = blocks.BooleanBlock(default=True, help_text="Whether sh1, sh2, sh3 will be shown on this block", required=False)
+    sharingan1 = blocks.RichTextBlock(null=True, blank=False, classname="full")
+    sharingan2 = blocks.RichTextBlock(null=True, blank=False, classname="full")
+    sharingan3 = blocks.RichTextBlock(null=True, blank=False, classname="full")
+
+    show_team = blocks.BooleanBlock(default=False, help_text="Whether the team will be shown on this block", required=False)
+    nyan_title = blocks.CharBlock(max_length=16, default="The Team", classname="full")
+    members = blocks.StreamBlock([
+        ('member', HomeSharinganTeamMemberBlock(null=True,blank=False, icon='user'))
+    ], blank=False, )
+
+    graphql_fields = [GraphQLBoolean("show_projects"), GraphQLString("sharingan1"), GraphQLString("sharingan2"), GraphQLString("sharingan3"), GraphQLBoolean("show_team"), GraphQLString("nyan_title"), GraphQLStreamfield("members")]
+
+
+@register_streamfield_block
+class HomeCommunityAdminMemberBlock(blocks.StructBlock):
+    pic = ImageChooserBlock(blank=True, classname="full")
+    name = blocks.CharBlock(blank=True, max_length=16, default="", classname="full")
+    description = blocks.CharBlock(max_length=128, default="", classname="full")
+
+    graphql_fields = [GraphQLImage("pic"), GraphQLString("name"), GraphQLString("description")]
+
+
+@register_streamfield_block
+class HomeCommunityAdminMrowBlock(blocks.StructBlock):
+    members = blocks.StreamBlock([
+        ('member', HomeCommunityAdminMemberBlock(null=True, blank=False, icon='user'))
+    ], required=False)
+
+    graphql_fields = [GraphQLStreamfield("members"), ]
+
+
+@register_streamfield_block
+class HomeCommunityAdminBlock(blocks.StructBlock):
+    show_admins = blocks.BooleanBlock(default=True, help_text="Whether the admins will be shown on this block", required=False)
+    title = blocks.CharBlock(max_length=16, default="Admins", classname="full")
+    mrows = blocks.StreamBlock([
+        ('mrow', HomeCommunityAdminMrowBlock(blank=False, null=True, icon='group'))
+    ], required=False)
+
+    graphql_fields = [GraphQLBoolean("show_admins"), GraphQLString("admins_title"), GraphQLStreamfield("mrows")]
+
+
+@register_streamfield_block
+class HomeCommunityModMemberBlock(blocks.StructBlock):
+    pic = ImageChooserBlock(blank=True, classname="full")
+    name = blocks.CharBlock(blank=True, max_length=16, default="", classname="full")
+
+    graphql_fields = [GraphQLImage("pic"), GraphQLString("name")]
+
+
+@register_streamfield_block
+class HomeCommunityModMrowBlock(blocks.StructBlock):
+    members = blocks.StreamBlock([
+        ('member', HomeCommunityModMemberBlock(null=True, blank=False, icon='user'))
+    ], required=False)
+
+    graphql_fields = [GraphQLStreamfield("members"), ]
+
+
+@register_streamfield_block
+class HomeCommunityModBlock(blocks.StructBlock):
+    show_mods = blocks.BooleanBlock(default=True, help_text="Whether the mods will be shown on this block", required=False)
+    title = blocks.CharBlock(max_length=16, default="Mods", classname="full")
+    mrows = blocks.StreamBlock([
+        ('mrow', HomeCommunityModMrowBlock(blank=False, null=True, icon='group'))
+    ], required=False)
+
+    graphql_fields = [GraphQLBoolean("show_mods"), GraphQLString("mods_title"), GraphQLStreamfield("mrows")]
+
+
+@register_streamfield_block
+class _S_HomeCommunityBlock(blocks.StructBlock):
+    admins = blocks.StreamBlock([
+        ('admin', HomeCommunityAdminBlock(null=True, blank=False, icon='group'))
+    ])
+    mods = blocks.StreamBlock([
+        ('mod', HomeCommunityModBlock(null=True, blank=False, icon='group'))
+    ])
+
+    graphql_fields = [GraphQLStreamfield("admins"), GraphQLStreamfield("mods")]
+
+
+@register_streamfield_block
+class _S_HomeSpaceshipBlock(blocks.StructBlock):
+    pass
+
+
+@register_streamfield_block
+class _S_HomeGalleryBlock(blocks.StructBlock):
+    title = blocks.CharBlock(blank=True, classname="full")
+    gallery = blocks.StreamBlock([
+        ('image', ImageChooserBlock(blank=True, classname="full")),
+    ])
+
+    graphql_fields = [GraphQLString("title"), GraphQLStreamfield("gallery"), GraphQLImage("image")]
+
+
+@register_streamfield_block
+class _S_HomeCodeBlock(blocks.StructBlock):
+    code = blocks.RawHTMLBlock(blank=True, classname="full")
+
+    graphql_fields = [GraphQLString("code"), ]
+
 
 #> Homepage
 class HomePage(Page):
-    city = models.CharField(null=True, blank=False, max_length=255)
-    zip_code = models.CharField(null=True, blank=False, max_length=255)
-    address = models.CharField(null=True, blank=False, max_length=255)
-    telephone = models.CharField(null=True, blank=False, max_length=255)
-    telefax = models.CharField(null=True, blank=False, max_length=255)
-    vat_number = models.CharField(null=True, blank=False, max_length=255)
-    whatsapp_telephone = models.CharField(null=True, blank=True, max_length=255)
-    whatsapp_contactline = models.CharField(null=True, blank=True, max_length=255)
-    tax_id = models.CharField(null=True, blank=False, max_length=255)
-    trade_register_number = models.CharField(null=True, blank=False, max_length=255)
-    court_of_registry = models.CharField(null=True, blank=False, max_length=255)
-    place_of_registry = models.CharField(null=True, blank=False, max_length=255)
-    trade_register_number = models.CharField(null=True, blank=False, max_length=255)
-    ownership = models.CharField(null=True, blank=False, max_length=255)
-    email = models.CharField(null=True, blank=False, max_length=255)
-
-    copyrightholder = models.CharField(null=True, blank=False, max_length=255)
-
-    about = RichTextField(null=True, blank=False)
-    privacy = RichTextField(null=True, blank=False)
-
-    sociallinks = StreamField([
-        ('link', blocks.URLBlock(help_text="Important! Format https://www.domain.tld/xyz"))
-    ])
-
-    array = []
-    def sociallink_company(self):
-        for link in self.sociallinks:
-            self.array.append(str(link).split(".")[1])
-        return self.array
-
-
     headers = StreamField([
-        ('h_hero', _H_HeroBlock(null=True, blank=False, icon='image')),
-        ('code', blocks.RawHTMLBlock(null=True, blank=True, classname="full", icon='code'))
+        ('h_banner', _H_HomeBannerBlock(null=True, blank=False, icon='title')),
+        ('h_full', _H_HomeFullBlock(null=True, blank=False, icon='title')),
+        ('h_code', blocks.RawHTMLBlock(null=True, blank=True, classname="full", icon='code')),
     ], null=True, blank=False)
 
     sections = StreamField([
-        ('s_why', _S_WhyBlock(null=True, blank=False, icon='group')),
-        ('s_about', _S_AboutBlock(null=True, blank=False, icon='fa-quote-left')),
-        ('s_instagram', _S_InstagramBlock(null=True, blank=False, icon='fa-instagram')),
-        ('s_steps', _S_StepsBlock(null=True, blank=False, icon='fa-list-ul')),
-        ('s_shop', _S_ShopBlock(null=True, blank=False, icon='home')),
-        ('s_trusted', _S_TrustedBlock(null=True, blank=False, icon='fa-list-ul')),
-        ('s_wolf', _S_WolfBlock(null=True, blank=False, icon='fa-list-ul')),
-        ('s_faq', _S_FAQBlock(null=True, blank=False, icon='home')),
-        ('code', blocks.RawHTMLBlock(null=True, blank=True, classname="full", icon='code'))
-    ], null=True, blank=False)
+        ('s_about', _S_HomeAboutBlock(null=True, blank=False, icon='radio-empty')),
+        ('s_modt', _S_HomeMotdBlock(null=True, blank=False, icon='pilcrow')),
+        ('s_sharingan', _S_HomeSharinganBlock(null=True, blank=False, icon='view')),
+        ('s_community', _S_HomeCommunityBlock(null=True, blank=False, icon='group')),
+        ('s_spaceship', _S_HomeSpaceshipBlock(null=True, blank=False, icon='pick')),
+        ('s_gallery', _S_HomeGalleryBlock(null=True, blank=False, icon='grip')),
+        ('s_code', _S_HomeCodeBlock(null=True, blank=False, icon='code'))
+    ], null=True, blank=False, )
 
-    token = models.CharField(null=True, blank=True, max_length=255)
+# header = StreamField([
+#      ('hbanner', blocks.StructBlock([
+#        ('banner', blocks.CharBlock(blank=True, classname="full title", icon='title'))
+#      ], required=False, icon='bold')),
+#
+#      ('hfull', blocks.StructBlock([
+#        ('full', blocks.CharBlock(blank=True, classname="full title", icon='title'))
+#      ], required=False, icon='placeholder')),
+#
+#      ('hcode', blocks.StructBlock([
+#        ('code', blocks.RawHTMLBlock(blank=True, classname="full"))
+#      ], icon='code'))
+#    ], blank=True)
 
-    #graphql_fields = [
-    #    GraphQLStreamfield("headers"),
-    #    GraphQLStreamfield("sections"),
-    #]
+#    article = StreamField([
+#      ('aabout', blocks.StructBlock([
+#        ('about_pages', blocks.StreamBlock([
+#          ('about', blocks.StructBlock([
+#            ('blink', blocks.CharBlock(blank=True, classname="full")),
+#            ('use_image', blocks.BooleanBlock(default=False, help_text="Use picture instead of blink", required=False, classname="full")),
+#            ('image', ImageChooserBlock(required=False, classname="full")),
+#            ('boxes', blocks.StreamBlock([
+#              ('title', blocks.CharBlock(blank=True, classname="full title", icon='title')),
+#              ('content', blocks.RichTextBlock(blank=True, features=['bold', 'italic', 'underline', 'strikethrough', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'hr', 'embed', 'link', 'document-link', 'image'], classname="full"))
+#            ]))
+#          ], icon='doc-full'))
+#        ], icon='cogs')),
+#      ], icon='radio-empty')),
+#
+#      ('amotd', blocks.StructBlock([
+#        ('modt', blocks.CharBlock(max_length=16, default="Sky's The Limit", classname="full")),
+#      ], icon='pilcrow')),
+#
+#      ('asharingan', blocks.StructBlock([
+#        ('sharingan', blocks.StructBlock([
+#          ('show_projects', blocks.BooleanBlock(default=True, help_text="Whether sh1, sh2, sh3 will be shown on this block", required=False, classname="full")),
+#          ('sharingan_1', blocks.RichTextBlock(default="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", features=['bold', 'italic', 'underline', 'strikethrough', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'hr', 'embed', 'link', 'document-link', 'image'], classname="full")),
+#          ('sharingan_2', blocks.RichTextBlock(default="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", features=['bold', 'italic', 'underline', 'strikethrough', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'hr', 'embed', 'link', 'document-link', 'image'], classname="full")),
+#          ('sharingan_3', blocks.RichTextBlock(default="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", features=['bold', 'italic', 'underline', 'strikethrough', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'hr', 'embed', 'link', 'document-link', 'image'], classname="full")),
+#        ])),
+#        ('team', blocks.StructBlock([
+#          ('show_team', blocks.BooleanBlock(default=False, help_text="Whether the team will be shown on this block", required=False, classname="full")),
+#          ('nyan_titel', blocks.CharBlock(max_length=16, default="The Team", classname="full")),
+#          ('members', blocks.StreamBlock([
+#            ('member', blocks.StructBlock([
+#              ('pic', ImageChooserBlock(blank=True, classname="full")),
+#              ('name', blocks.CharBlock(blank=True, max_length=16, default="", classname="full")),
+#              ('description', blocks.CharBlock(max_length=128, default="", classname="full"))
+#            ], icon='user'))
+#          ], required=False))
+#        ]))
+#      ], icon='view')),
+#
+#      ('acommunity', blocks.StructBlock([
+#        ('admins', blocks.StructBlock([
+#          ('show_admins', blocks.BooleanBlock(default=True, help_text="Whether the admins will be shown on this block", required=False, classname="full")),
+#          ('admins_titel', blocks.CharBlock(max_length=16, default="Admins", classname="full")),
+#          ('members', blocks.StreamBlock([
+#            ('mrow', blocks.StreamBlock([
+#              ('member', blocks.StructBlock([
+#                ('pic', ImageChooserBlock(blank=True, classname="full")),
+#                ('name', blocks.CharBlock(blank=True, max_length=16, default="", classname="full")),
+#                ('description', blocks.CharBlock(max_length=128, default="", classname="full"))
+#              ], icon='user'))
+#            ], icon='group'))
+#          ], required=False))
+#        ])),
+#        ('mods', blocks.StructBlock([
+#          ('show_mods', blocks.BooleanBlock(default=True, help_text="Whether the mods will be shown on this block", required=False, classname="full")),
+#          ('mods_titel', blocks.CharBlock(max_length=16, default="Mods", classname="full")),
+#          ('members', blocks.StreamBlock([
+#            ('mrow', blocks.StreamBlock([
+#              ('member', blocks.StructBlock([
+#                ('pic', ImageChooserBlock(blank=True, classname="full")),
+#                ('name', blocks.CharBlock(blank=True, max_length=16, default="", classname="full"))
+#              ], icon='user'))
+#            ], icon='group'))
+#          ], required=False))
+#        ]))
+#      ], icon='group')),
+#
+#      ('aspaceship', blocks.StructBlock([
+#      ], icon='pick')),
+#
+#      ('agallery', blocks.StructBlock([
+#        ('title', blocks.CharBlock(blank=True, classname="full")),
+#        ('gallery', blocks.StreamBlock([
+#          ('image', ImageChooserBlock(blank=True, classname="full")),
+#        ]))
+#      ], icon='grip')),
+#
+#      ('acode', blocks.StructBlock([
+#        ('code', blocks.RawHTMLBlock(blank=True, classname="full"))
+#      ], icon='code'))
+#    ], blank=True)
+
 
     main_content_panels = [
         StreamFieldPanel('headers'),
         StreamFieldPanel('sections')
     ]
 
-    imprint_panels = [
-        MultiFieldPanel(
-            [
-            FieldPanel('city'),
-            FieldPanel('zip_code'),
-            FieldPanel('address'),
-            FieldPanel('telephone'),
-            FieldPanel('telefax'),
-            FieldPanel('whatsapp_telephone'),
-            FieldPanel('whatsapp_contactline'),
-            FieldPanel('email'),
-            FieldPanel('copyrightholder')
-            ],
-            heading="contact",
-        ),
-        MultiFieldPanel(
-            [
-            FieldPanel('vat_number'),
-            FieldPanel('tax_id'),
-            FieldPanel('trade_register_number'),
-            FieldPanel('court_of_registry'),
-            FieldPanel('place_of_registry'),
-            FieldPanel('trade_register_number'),
-            FieldPanel('ownership')
-            ],
-            heading="legal",
-        ),
-        StreamFieldPanel('sociallinks'),
-        MultiFieldPanel(
-            [
-            FieldPanel('about'),
-            FieldPanel('privacy')
-            ],
-            heading="privacy",
-        )
-    ]
-
-    token_panel = [
-        FieldPanel('token')
+    graphql_fields = [
+        GraphQLStreamfield("headers"),
+        GraphQLStreamfield("sections"),
     ]
 
     edit_handler = TabbedInterface([
         ObjectList(Page.content_panels + main_content_panels, heading='Main'),
-        ObjectList(imprint_panels, heading='Imprint'),
-        ObjectList(Page.promote_panels + token_panel + Page.settings_panels, heading='Settings', classname="settings")
+        ObjectList(Page.promote_panels + Page.settings_panels, heading='Settings', classname="settings")
     ])

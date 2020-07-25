@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block body_class %}
+template-linuxdaypage
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="https://erebos.xyz/CSS/origam.css">
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Noto%20Sans:400,700">
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrappackageicon.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/merged-21471359726f3b034d1b0f5ba6f9915b.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/webfont.css' %}">
+{% endblock %}
+{% block extra_js %}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript"
+  src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+<script type="text/javascript" src="{% static 'js/nojs.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/pace.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/kazuhikoarase.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/qrcodegenerator.js' %}"></script>
+<!--<script type="text/javascript" src="{% static 'js/boom.js' %}"></script>-->
+<script type="text/javascript" src="{% static 'js/seal.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/oculus.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/nyan.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/scc.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/charc.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/party.js' %}"></script>
+{% endblock %}
+{% block content %}
+<header class="site-header">
+  {% include "projekttage/h_navtop/hnavtop.html" %}
+  {% for h in page.headers %}
+  {% if h.block_type == 'hfull' %}
+  {% include "projekttage/h_full/full.html" %}
+  {% elif h.block_type == 'h_banner' %}
+  {% include "projekttage/h_banner/hbanner.html" %}
+  {% elif h.block_type == 'h_banner' %}
+  {{ h.h_code }}
+  {% endif %}
+  {% endfor %}
+</header>
+{% for s in page.sections %}
+{% if s.block_type == 's_info' %}
+{% include "projekttage/s_info/sinfo.html" %}
+{% elif s.block_type == 's_boxes' %}
+{% include "projekttage/s_boxes/sboxes.html" %}
+{% elif s.block_type == 's_partners' %}
+{% include "projekttage/s_partners/spartners.html" %}
+{% elif s.block_type == 's_code' %}
+{{ s.s_code }}
+{% endif %}
+{% endfor %}
+{% include "projekttage/f_generic/fgeneric.html" %}
+{% block script %}
+{% endblock %}
+{% endblock %}

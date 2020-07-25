@@ -305,7 +305,10 @@ class LogConfig(AppConfig):
 
     def ready(self):
         """Start the client."""
-        threading.Thread(name="log-main-thread", target=Log.main).start()
+        print("sneklog started...")
+        log_thread = threading.Thread(name="log-main-thread", target=Log.main)
+        log_thread.daemon = True  # -> dies after main thread is closed
+        log_thread.start()
 
 
 class Log():

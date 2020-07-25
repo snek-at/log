@@ -1,56 +1,55 @@
 from django.contrib.auth import get_user_model
-import json
+from django.contrib.contenttypes.models import ContentType
+
 import graphene
+from graphene.types.generic import GenericScalar
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
+from graphql.execution.base import ResolveInfo
 from graphql_jwt.decorators import login_required, permission_required, staff_member_required, superuser_required
 
-from wagtail.core.models import Page
-
-from esite.user.models import User
-from esite.profile.models import ProfilePage
-from esite.customer.models import Customer
-from esite.registration.schema import UserType
-
 from .models import Kanban, KanbanLane, KanbanCard, KanbanTag
-# Create your registration related graphql schemes here.
+from esite.api.registry import registry
 
-#class UserType(DjangoObjectType):
-#    class Meta:
-#        model = User
-#        exclude_fields = ['password']
+# Create your user related graphql schemes here.
 
+class GetKanbans(graphene.ObjectType):
+    get_all_kanbans = graphene.List(registry.models[Kanban], token=graphene.String())
 
-class KanbanType(DjangoObjectType):
-    class Meta:
-        model = Kanban
+    @login_required
+    def resolve_kanbans(self, info, **_kwargs):
+        # To list all events
+        return Kanban.objects.all()
 
+class GetKanbanCache(graphene.ObjectType):
+    get_kanban_cache = graphene.Field(registry.models[Kanban], token=graphene.String())
 
-class CacheKanban(graphene.Mutation):
-    kanban = graphene.Field(KanbanType)
+    @login_required
+    def resolve_kanban_cache(self, info, **_kwargs):
+
+        kanban = Kanban.objects.get(kanban_id=f"{kanban_id}")
+
+        kanban.kanban_cache = kanban_cache
+
+        kanban.save()
+
+        return GetKanbanCache(kanban=kanban)
+
+class SaveKanbanCache(graphene.Mutation):
+    kanban = graphene.Field(registry.models[Kanban])
 
     class Arguments:
         token = graphene.String(required=False)
         kanban_id = graphene.String(required=True)
+        kanban_cache = graphene.String(required=True)
 
     @login_required
-    def mutate(self, info, token, kanban_id):
-        #kanban = Kanban.objects.all()
+    def mutate(self, info, token, kanban_id, kanban_cache):
 
-        #user.platform_data = platform_data
-        #user.save()
-        kanban = Kanban.objects.get(kanban_id=kanban_id)
+        kanban = Kanban.objects.get(kanban_id=f"{kanban_id}")
 
-        #kanban_page.kanban_data = kanban_data
+        kanban.kanban_cache = kanban_cache
 
-        #profile_page.save_revision().publish()
+        kanban.save()
 
-        return CacheKanban(kanban=kanban)
-
-
-class Query(graphene.ObjectType):
-    kanbans = graphene.List(KanbanType)
-
-    def resolve_kanbans(self, info):
-        # To list all users
-        return Kanban.objects.all()
+        return SaveKanbanCache(kanban=kanban)

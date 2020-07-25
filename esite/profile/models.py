@@ -21,6 +21,21 @@ from modelcluster.fields import ParentalKey
 from esite.colorfield.fields import ColorField, ColorAlphaField
 from esite.colorfield.blocks import ColorBlock, ColorAlphaBlock, GradientColorBlock
 
+from esite.api.helpers import register_streamfield_block
+
+from esite.api.models import (
+    GraphQLForeignKey,
+    GraphQLField,
+    GraphQLStreamfield,
+    GraphQLImage,
+    GraphQLString,
+    GraphQLCollection,
+    GraphQLEmbed,
+    GraphQLSnippet,
+    GraphQLBoolean,
+    GraphQLSnippet,
+)
+
 #from grapple.models import (
 #    GraphQLField,
 #    GraphQLString,
@@ -32,8 +47,13 @@ from esite.colorfield.blocks import ColorBlock, ColorAlphaBlock, GradientColorBl
 class _S_TopLanguages(blocks.StructBlock):
     theme = blocks.CharBlock(null=True, blank=True, help_text="Bold header text", max_length=64)
 
+    graphql_fields = [GraphQLString("theme"),]
+
+
 class _S_Calendar(blocks.StructBlock):
     theme = blocks.CharBlock(null=True, blank=True, help_text="Bold header text", max_length=64)
+
+    graphql_fields = [GraphQLString("theme"),]
 
 
 class Platform(blocks.StructBlock):
@@ -50,6 +70,8 @@ class Platform(blocks.StructBlock):
     location = blocks.CharBlock(null=True, blank=True, help_text="Bold header text", max_length=80)
     statusMessage = blocks.CharBlock(null=True, blank=True, help_text="Bold header text", max_length=80)
     statusEmojiHTML = blocks.CharBlock(null=True, blank=True, help_text="Bold header text", max_length=80)
+
+    graphql_fields = [GraphQLString("sources"),GraphQLString("platformName"),GraphQLString("platformUrl"),GraphQLString("avatarUrl"),GraphQLString("websiteUrl"),GraphQLString("company"),GraphQLString("email"),GraphQLString("username"),GraphQLString("fullname"),GraphQLString("createdAt"),GraphQLString("location"),GraphQLString("statusMessage"),GraphQLString("statusEmojiHTML")]
 
 
 #> Profilepage
@@ -79,10 +101,9 @@ class ProfilePage(Page):
     ], null=True, blank=True)
 
 
-    #graphql_fields = [
-    #    GraphQLStreamfield("headers"),
-    #    GraphQLStreamfield("sections"),
-    #]
+    graphql_fields = [
+        GraphQLStreamfield("main"),
+    ]
 
     data_panels = [
         FieldPanel('sources'),

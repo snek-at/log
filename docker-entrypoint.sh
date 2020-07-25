@@ -23,6 +23,17 @@ if [ "x$DJANGO_LOAD_INITIAL_DATA" = 'xon' ]; then
 	/venv/bin/python manage.py load_initial_data
 fi
 
+# Register event URL.
+#if [[ $PRIMARY_HOST ]]; then
+	# GINAvbs backup solution
+    #git clone https://kleberf:5LyLHW8-RQLTX4xv5x_Y@gitlab.htl-villach.at/snekman/event-registry.git
+    #cd event-registry
+    #echo $PRIMARY_HOST >> event.list
+    #git commit -m "$(date -R)"
+    #git push https://kleberf:5LyLHW8-RQLTX4xv5x_Y@gitlab.htl-villach.at/snekman/event-registry.git
+    #cd ..
+#fi
+
 exec "$@"
 
 # SPDX-License-Identifier: (EUPL-1.2)

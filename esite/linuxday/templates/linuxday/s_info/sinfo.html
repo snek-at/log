@@ -1,0 +1,82 @@
+{% load wagtailcore_tags %}
+{% block sinfo %}
+{% load wagtailimages_tags %}
+{% image s.value.banner_image width-530 as info_image_default %}
+{% image s.value.banner_image width-440 as info_image_w_large %}
+{% image s.value.banner_image width-320 as info_image_w_medium %}
+{% image s.value.banner_image width-500 as info_image_w_small %}
+{% image s.value.banner_image width-374 as info_image_w_extrasmall %}
+{% image s.value.info_image original as info_image %}
+
+{% if s.value.info_image_position == 'right' %}
+<div id="c46"
+  class="frame frame-default frame-type-textpic frame-layout-0 frame-background-none frame-no-backgroundimage frame-space-before-none frame-space-after-none">
+  <div class="frame-container">
+    <div class="frame-inner">
+      <div class="textpic textpic-right">
+        <div class="textpic-item textpic-gallery">
+          <div class="gallery-row">
+            <div class="gallery-item gallery-item-size-1">
+              <figure class="image">
+                <picture>
+                  <source data-variant="default" data-maxwidth="530" media="(min-width: 1200px)"
+                    srcset={{info_image_default.url}}>
+                  <source data-variant="large" data-maxwidth="440" media="(min-width: 992px)"
+                    srcset={{info_image_large.url}}>
+                  <source data-variant="medium" data-maxwidth="320" media="(min-width: 768px)"
+                    srcset={{info_image_medium.url}}>
+                  <source data-variant="small" data-maxwidth="500" media="(min-width: 576px)"
+                    srcset={{info_image_small.url}}>
+                  <source data-variant="extrasmall" data-maxwidth="374" srcset={{info_image_extrasmall.url}}>
+                  <img srcset={{info_image.url}} title="" alt=""></picture>
+              </figure>
+            </div>
+          </div>
+        </div>
+        <div class="textpic-item textpic-text">
+          <header class="frame-header">
+            <h2 class="element-header ">{{s.value.info_head}}</h2>
+          </header>
+          {{s.value.info_paragraph}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% elif s.value.info_image_position == 'left' %}
+<div id="c42"
+  class="frame frame-default frame-type-textmedia frame-layout-0 frame-background-none frame-no-backgroundimage frame-space-before-none frame-space-after-none">
+  <div class="frame-container">
+    <div class="frame-inner">
+      <div class="textmedia textmedia-left">
+        <div class="textmedia-item textmedia-gallery">
+          <div class="gallery-row">
+            <div class="gallery-item gallery-item-size-1">
+              <figure class="image">
+                <picture>
+                  <source data-variant="default" data-maxwidth="530" media="(min-width: 1200px)"
+                    srcset={{info_image_default.url}}>
+                  <source data-variant="large" data-maxwidth="440" media="(min-width: 992px)"
+                    srcset={{info_image_large.url}}>
+                  <source data-variant="medium" data-maxwidth="320" media="(min-width: 768px)"
+                    srcset={{info_image_medium.url}}>
+                  <source data-variant="small" data-maxwidth="500" media="(min-width: 576px)"
+                    srcset={{info_image_small.url}}>
+                  <source data-variant="extrasmall" data-maxwidth="374" srcset={{info_image_extrasmall.url}}>
+                  <img srcset={{info_image.url}} title="" alt=""></picture>
+              </figure>
+            </div>
+          </div>
+        </div>
+        <div class="textmedia-item textmedia-text">
+          <header class="frame-header">
+            <h2 class="element-header "><span>{{s.value.info_head}}</span></h2>
+          </header>
+          {{s.value.info_paragraph}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

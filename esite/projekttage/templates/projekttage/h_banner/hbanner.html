@@ -1,0 +1,61 @@
+{% load wagtailcore_tags %}
+{% block hbanner %}
+{% load wagtailimages_tags %}
+{% image h.value.banner_image original as background_image %}
+{% image h.value.banner_image width-576 as background_image_w_576 %}
+{% image h.value.banner_image width-768 as background_image_w_768 %}
+{% image h.value.banner_image width-992 as background_image_w_992 %}
+{% image h.value.banner_image width-1200 as background_image_w_1200 %}
+<div id="carousel-16" class="carousel carousel-fade slide" data-interval="5000" data-wrap="true" data-ride="carousel"
+  style="touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+  <div class="carousel-inner">
+    <div class="item active carousel-item carousel-item-type carousel-item-type-text_and_image" data-itemno="0"
+      style="background-color: #7a7a7a;">
+      <div class="carousel-backgroundimage-container">
+        <div id="carousel-backgroundimage-16-6"
+          class="carousel-backgroundimage carousel-backgroundimage-parallax carousel-backgroundimage-grayscale">
+          <style>
+            #carousel-backgroundimage-16-6 {
+              background-image: url({{background_image.url}});
+            }
+
+            @media (min-width: 576px) {
+              #carousel-backgroundimage-16-6 {
+                background-image: url({{background_image_w_576.url}});
+              }
+            }
+
+            @media (min-width: 768px) {
+              #carousel-backgroundimage-16-6 {
+                background-image: url({{background_image_w_768.url}});
+              }
+            }
+
+            @media (min-width: 992px) {
+              #carousel-backgroundimage-16-6 {
+                background-image: url({{background_image_w_992.url}});
+              }
+            }
+
+            @media (min-width: 1200px) {
+              #carousel-backgroundimage-16-6 {
+                background-image: url({{background_image_w_1200.url}});
+              }
+            }
+          </style>
+        </div>
+      </div>
+      <div class="carousel-content">
+        <div class="valign">
+          <div class="carousel-text vcontainer"
+            style="background-color: rgba(1, 56, 89, 0.7); color: white; padding: 15px;">
+            <h1 class="carousel-header none">{{ h.value.banner_head }}</h1>
+            {{ h.value.banner_subhead }}
+          </div>
+          <div class="carousel-image vcontainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
